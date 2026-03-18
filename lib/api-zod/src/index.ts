@@ -1,18 +1,18 @@
 // lib/api-zod/src/index.ts
 
-// Explicit exports from generated/api
+// From generated/api.ts
 export { 
   AdminLoginBody,
   AdminLoginResponse,
   CreateToolBody,
   UpdateToolBody,
-  // add all other types you actually need from ./generated/api
+  // add all other types from api.ts
 } from "./generated/api";
 
-// Explicit exports from generated/types
-export { 
-  // Only include types that are not already exported above
-  SomeType1,
-  SomeType2,
-  // ...replace with actual type names from ./generated/types
+// From generated/types.ts
+export {
+  ToolType,
+  UserRole,
+  OtherType,
+  // add all other types from types.ts
 } from "./generated/types";
