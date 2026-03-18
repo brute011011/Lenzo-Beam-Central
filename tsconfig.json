@@ -1,19 +1,15 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",            // modern JS output
-    "module": "CommonJS",          // works with Node/Vercel
-    "strict": true,                // catch errors early
+    "target": "ES2022",
+    "module": "CommonJS",
+    "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmitOnError": false,        // ✅ allow emit even if TS has minor issues
-    "outDir": "dist",              // JS output folder
-    "skipLibCheck": true           // speeds up build, avoids type conflicts
+    "noEmitOnError": false,
+    "outDir": "dist",
+    "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"], // include all your source files
-  "references": [
-    { "path": "./lib/db" },
-    { "path": "./lib/api-client-react" },
-    { "path": "./lib/api-zod" }
-  ]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "lib/**/*.ts"],
+  "references": []
 }
