@@ -1,7 +1,8 @@
-import { Router, type IRouter } from "express";
+
+import { Router } from "express"; // type IRouter optional
 import { HealthCheckResponse } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router(); // let TS infer type
 
 router.get("/healthz", (_req, res) => {
   const data = HealthCheckResponse.parse({ status: "ok" });
