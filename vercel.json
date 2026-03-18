@@ -1,0 +1,11 @@
+{
+  "builds": [
+    {
+      "src": "artifacts/api-server/**",
+      "use": "@vercel/node"
+    }
+  ],
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm --filter artifacts/api-server build",
+  "outputDirectory": "artifacts/api-server/dist"
+}
