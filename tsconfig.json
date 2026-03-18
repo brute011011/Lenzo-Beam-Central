@@ -1,15 +1,16 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "CommonJS",
-    "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmitOnError": false,
-    "outDir": "dist",
-    "skipLibCheck": true
-  },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "lib/**/*.ts"],
-  "references": []
+"extends": "./tsconfig.base.json",
+"compileOnSave": false,
+"files": [],
+"references": [
+{
+"path": "./lib/db"
+},
+{
+"path": "./lib/api-client-react"
+},
+{
+"path": "./lib/api-zod"
+}
+]
 }
