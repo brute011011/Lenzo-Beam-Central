@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface CreateToolBody {
+  name: string;
+  description?: string;
+  link: string;
+  orderNum?: number;
+  isActive?: boolean;
 }
