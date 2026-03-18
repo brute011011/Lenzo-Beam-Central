@@ -1,125 +1,139 @@
-import { useState, useRef, type ReactNode, type CSSProperties } from "react";
+import { useState, useRef, useCallback, type ReactNode, type CSSProperties } from "react";
 
 interface GlassCardProps {
   children: ReactNode;
   style?: CSSProperties;
-  className?: string;
   hoverLift?: boolean;
+  variant?: "default" | "tool" | "hero";
 }
 
-export function GlassCard({ children, style, hoverLift = true }: GlassCardProps) {
+export function GlassCard({ children, style, hoverLift = true, variant = "default" }: GlassCardProps) {
   const [hovered, setHovered] = useState(false);
-  const [ripple, setRipple] = useState<{ x: number; y: number; key: number } | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 50, y: 30 });
+  const [ripples, setRipples] = useState<{ x: number; y: number; id: number }[]>([]);
   const cardRef = useRef<HTMLDivElement>(null);
-  const rippleKey = useRef(0);
+  const idRef = useRef(0);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    cardRef.current.style.setProperty("--shine-x", `${x}%`);
-    cardRef.current.style.setProperty("--shine-y", `${y}%`);
-  };
+    setMousePos({
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    });
+  }, []);
 
-  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
-    setHovered(true);
+  const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    rippleKey.current += 1;
-    setRipple({ x, y, key: rippleKey.current });
-    setTimeout(() => setRipple(null), 600);
-  };
+    const id = ++idRef.current;
+    setRipples(r => [...r, { x, y, id }]);
+    setTimeout(() => setRipples(r => r.filter(r2 => r2.id !== id)), 800);
+  }, []);
+
+  const isToolCard = variant === "tool";
+  const isHero = variant === "hero";
 
   return (
     <div
       ref={cardRef}
-      onMouseEnter={handleMouseEnter}
+      onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onMouseMove={handleMouseMove}
+      onClick={handleClick}
       style={{
         position: "relative",
-        borderRadius: "18px",
+        borderRadius: isHero ? "28px" : "20px",
         overflow: "hidden",
-        transition: "transform 0.35s cubic-bezier(0.4,0,0.2,1), box-shadow 0.35s ease",
-        transform: hoverLift && hovered ? "translateY(-8px) scale(1.015)" : "translateY(0) scale(1)",
+        isolation: "isolate",
+        transition: "transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s ease",
+        transform: hoverLift && hovered
+          ? isToolCard ? "translateY(-10px) scale(1.02)" : "translateY(-5px)"
+          : "translateY(0) scale(1)",
+
         background: hovered
-          ? "linear-gradient(145deg, rgba(255,255,255,0.18) 0%, rgba(180,210,255,0.10) 40%, rgba(100,160,255,0.08) 100%)"
-          : "linear-gradient(145deg, rgba(255,255,255,0.13) 0%, rgba(160,200,255,0.07) 40%, rgba(80,130,255,0.05) 100%)",
-        backdropFilter: "blur(24px) saturate(180%)",
-        WebkitBackdropFilter: "blur(24px) saturate(180%)",
-        border: hovered
-          ? "1px solid rgba(160,210,255,0.55)"
-          : "1px solid rgba(120,180,255,0.28)",
+          ? "linear-gradient(145deg, rgba(255,255,255,0.16) 0%, rgba(180,200,255,0.09) 40%, rgba(100,80,220,0.06) 100%)"
+          : "linear-gradient(145deg, rgba(255,255,255,0.10) 0%, rgba(150,170,255,0.055) 50%, rgba(80,60,180,0.04) 100%)",
+
+        backdropFilter: "blur(32px) saturate(200%) brightness(1.05)",
+        WebkitBackdropFilter: "blur(32px) saturate(200%) brightness(1.05)",
+
+        border: "1px solid",
+        borderColor: hovered
+          ? "rgba(180,160,255,0.50)"
+          : "rgba(140,120,220,0.22)",
+
         boxShadow: hovered
-          ? `0 20px 60px rgba(0,40,180,0.30), 0 0 0 1px rgba(180,220,255,0.15) inset, 0 1px 0 rgba(255,255,255,0.35) inset, 0 -1px 0 rgba(0,80,255,0.15) inset`
-          : `0 8px 32px rgba(0,20,120,0.25), 0 0 0 1px rgba(120,180,255,0.10) inset, 0 1px 0 rgba(255,255,255,0.20) inset`,
+          ? `0 24px 80px -8px rgba(80,40,200,0.35),
+             0 0 0 1px rgba(200,180,255,0.12) inset,
+             0 2px 0 rgba(255,255,255,0.22) inset,
+             0 -1px 0 rgba(100,60,200,0.18) inset,
+             0 0 40px -10px rgba(120,80,255,0.25)`
+          : `0 8px 40px -8px rgba(40,20,120,0.30),
+             0 0 0 1px rgba(140,120,220,0.08) inset,
+             0 1px 0 rgba(255,255,255,0.14) inset`,
         cursor: "default",
-        "--shine-x": "50%",
-        "--shine-y": "50%",
         ...style,
-      } as CSSProperties}
+      }}
     >
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          borderRadius: "inherit",
-          background: "linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.00) 60%)",
-          pointerEvents: "none",
-          zIndex: 1,
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          borderRadius: "inherit",
-          background: hovered
-            ? `radial-gradient(circle at var(--shine-x, 50%) var(--shine-y, 30%), rgba(200,230,255,0.22) 0%, transparent 60%)`
-            : "none",
-          pointerEvents: "none",
-          zIndex: 2,
-          transition: "opacity 0.3s ease",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: "10%",
-          right: "10%",
-          height: "1px",
-          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)",
-          pointerEvents: "none",
-          zIndex: 3,
-        }}
-      />
-      {ripple && (
-        <div
-          key={ripple.key}
-          style={{
-            position: "absolute",
-            left: ripple.x,
-            top: ripple.y,
-            width: 0,
-            height: 0,
-            borderRadius: "50%",
-            background: "rgba(180,220,255,0.18)",
-            transform: "translate(-50%, -50%)",
-            animation: "rippleExpand 0.6s ease-out forwards",
-            pointerEvents: "none",
-            zIndex: 4,
-          }}
-        />
+      <div style={{
+        position: "absolute", inset: 0, borderRadius: "inherit", zIndex: 1, pointerEvents: "none",
+        background: "linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.02) 50%, rgba(0,0,0,0) 100%)",
+      }} />
+
+      <div style={{
+        position: "absolute", inset: 0, borderRadius: "inherit", zIndex: 2, pointerEvents: "none",
+        opacity: hovered ? 1 : 0,
+        transition: "opacity 0.3s ease",
+        background: `radial-gradient(ellipse 70% 50% at ${mousePos.x}% ${mousePos.y}%, rgba(200,180,255,0.18) 0%, rgba(140,120,255,0.06) 50%, transparent 70%)`,
+      }} />
+
+      <div style={{
+        position: "absolute", top: 0, left: "5%", right: "5%", height: "1px", zIndex: 3, pointerEvents: "none",
+        background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 30%, rgba(200,180,255,0.7) 50%, rgba(255,255,255,0.55) 70%, transparent 100%)",
+        opacity: hovered ? 1 : 0.6,
+        transition: "opacity 0.3s ease",
+      }} />
+
+      <div style={{
+        position: "absolute", bottom: 0, left: "10%", right: "10%", height: "1px", zIndex: 3, pointerEvents: "none",
+        background: "linear-gradient(90deg, transparent, rgba(120,80,255,0.25), transparent)",
+      }} />
+
+      <div style={{
+        position: "absolute", top: 0, left: 0, bottom: 0, width: "1px", zIndex: 3, pointerEvents: "none",
+        background: "linear-gradient(180deg, rgba(255,255,255,0.3), rgba(140,120,220,0.1), transparent)",
+      }} />
+
+      {hovered && (
+        <div style={{
+          position: "absolute", inset: 0, borderRadius: "inherit", zIndex: 2, pointerEvents: "none",
+          background: `conic-gradient(from ${mousePos.x * 3.6}deg at ${mousePos.x}% ${mousePos.y}%, transparent 0%, rgba(180,140,255,0.04) 20%, transparent 40%)`,
+          transition: "background 0.2s ease",
+        }} />
       )}
+
+      {ripples.map(r => (
+        <div key={r.id} style={{
+          position: "absolute",
+          left: r.x, top: r.y,
+          width: 0, height: 0,
+          borderRadius: "50%",
+          background: "rgba(200,180,255,0.20)",
+          transform: "translate(-50%, -50%)",
+          animation: "glassRipple 0.8s ease-out forwards",
+          pointerEvents: "none", zIndex: 4,
+        }} />
+      ))}
+
       <div style={{ position: "relative", zIndex: 5 }}>{children}</div>
+
       <style>{`
-        @keyframes rippleExpand {
-          from { width: 0; height: 0; opacity: 0.6; }
-          to { width: 200px; height: 200px; opacity: 0; }
+        @keyframes glassRipple {
+          from { width: 0; height: 0; opacity: 0.7; }
+          to { width: 300px; height: 300px; opacity: 0; }
         }
       `}</style>
     </div>

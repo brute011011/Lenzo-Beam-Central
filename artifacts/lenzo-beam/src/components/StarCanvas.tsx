@@ -18,55 +18,55 @@ export function StarCanvas() {
     resize();
     window.addEventListener("resize", resize);
 
-    const STAR_COUNT = 260;
+    const STAR_COUNT = 300;
     const stars = Array.from({ length: STAR_COUNT }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      r: Math.random() * 1.8 + 0.2,
-      speed: Math.random() * 0.3 + 0.04,
-      opacity: Math.random() * 0.7 + 0.3,
+      r: Math.random() * 1.4 + 0.15,
+      speed: Math.random() * 0.18 + 0.02,
+      opacity: Math.random() * 0.65 + 0.25,
       twinkle: Math.random() * Math.PI * 2,
-      twinkleSpeed: Math.random() * 0.018 + 0.004,
+      twinkleSpeed: Math.random() * 0.012 + 0.003,
+      color: Math.random() > 0.85 ? `rgba(200,180,255,` : Math.random() > 0.7 ? `rgba(160,220,255,` : `rgba(220,235,255,`,
     }));
-
-    const nebula = [
-      { x: 0.15, y: 0.25, r: 360, color: "rgba(20,0,100,0.20)" },
-      { x: 0.78, y: 0.7, r: 300, color: "rgba(0,30,140,0.18)" },
-      { x: 0.5, y: 0.5, r: 450, color: "rgba(0,15,60,0.12)" },
-      { x: 0.35, y: 0.8, r: 200, color: "rgba(0,50,120,0.10)" },
-    ];
 
     const draw = () => {
       const w = canvas.width;
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
-      const bg = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.9);
-      bg.addColorStop(0, "#030b1f");
-      bg.addColorStop(0.5, "#020710");
-      bg.addColorStop(1, "#010408");
+      const bg = ctx.createRadialGradient(w * 0.5, h * 0.4, 0, w * 0.5, h * 0.4, Math.max(w, h) * 0.9);
+      bg.addColorStop(0, "#0a0618");
+      bg.addColorStop(0.35, "#060310");
+      bg.addColorStop(0.7, "#040110");
+      bg.addColorStop(1, "#020008");
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, w, h);
 
-      for (const n of nebula) {
-        const grad = ctx.createRadialGradient(n.x * w, n.y * h, 0, n.x * w, n.y * h, n.r);
-        grad.addColorStop(0, n.color);
-        grad.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = grad;
+      const nebs = [
+        { x: 0.12, y: 0.2, r: 420, c: "rgba(80,20,140,0.14)" },
+        { x: 0.85, y: 0.55, r: 380, c: "rgba(0,60,180,0.10)" },
+        { x: 0.45, y: 0.75, r: 300, c: "rgba(40,0,120,0.12)" },
+        { x: 0.65, y: 0.15, r: 250, c: "rgba(0,80,200,0.08)" },
+        { x: 0.3, y: 0.5, r: 500, c: "rgba(30,0,80,0.08)" },
+      ];
+
+      for (const n of nebs) {
+        const g = ctx.createRadialGradient(n.x * w, n.y * h, 0, n.x * w, n.y * h, n.r);
+        g.addColorStop(0, n.c);
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g;
         ctx.fillRect(0, 0, w, h);
       }
 
       for (const s of stars) {
         s.twinkle += s.twinkleSpeed;
         s.y -= s.speed;
-        if (s.y < -2) {
-          s.y = h + 2;
-          s.x = Math.random() * w;
-        }
-        const alpha = s.opacity * (0.55 + 0.45 * Math.sin(s.twinkle));
+        if (s.y < -2) { s.y = h + 2; s.x = Math.random() * w; }
+        const alpha = s.opacity * (0.5 + 0.5 * Math.sin(s.twinkle));
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(180,215,255,${alpha})`;
+        ctx.fillStyle = `${s.color}${alpha})`;
         ctx.fill();
       }
 
@@ -80,10 +80,5 @@ export function StarCanvas() {
     };
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}
-    />
-  );
+  return <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }} />;
 }
