@@ -1,8 +1,7 @@
+import { Router } from "express";
+import { HealthCheckResponse } from "../../lib/api-zod"; // relative import for Vercel
 
-import { Router } from "express"; // type IRouter optional
-import { HealthCheckResponse } from "@workspace/api-zod";
-
-const router = Router(); // let TS infer type
+const router = Router();
 
 router.get("/healthz", (_req, res) => {
   const data = HealthCheckResponse.parse({ status: "ok" });
